@@ -5,8 +5,9 @@ const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS ? process.env.EMAIL_PASS.replace(/\s+/g, '') : undefined, // Remove spaces from app password
+    pass: process.env.EMAIL_PASS ? process.env.EMAIL_PASS.replace(/\s+/g, '') : undefined,
   },
+  family: 4, // Force IPv4 to avoid ENETUNREACH errors on some networks
 });
 
 // Verify connection on startup
