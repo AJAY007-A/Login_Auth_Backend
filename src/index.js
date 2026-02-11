@@ -1,7 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const authRoutes = require('./routes/auth');
+const authRoutes = require("./routes/auth");
+
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -9,7 +11,10 @@ const PORT = process.env.PORT || 5000;
 const session = require('express-session');
 const passport = require('./lib/passport');
 
-app.use(cors());
+app.use(cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true
+}));
 app.use(express.json());
 
 app.use(
@@ -24,6 +29,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/api/auth', authRoutes);
+
 
 app.get('/health', (req, res) => {
     res.json({ status: 'OK', message: 'Backend is running' });
