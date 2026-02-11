@@ -1,23 +1,23 @@
 const nodemailer = require('nodemailer');
 
-// Use 'service: gmail' for better reliability with Gmail App Passwords
-// Use explicit SMTP configuration to avoid IPv6 issues
+
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // true for 465, false for other ports
+  port: 465,
+  secure: true, // true for 465, false for other ports
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS ? process.env.EMAIL_PASS.replace(/\s+/g, '') : undefined,
   },
-  tls: {
-    ciphers: 'SSLv3'
-  },
-  requireTLS: true,
+  connectionTimeout: 10000, // 10 seconds
+  greetingTimeout: 5000,
+  socketTimeout: 10000,
+  logger: true, // Log to console
+  debug: true, // Include debug info
   family: 4, // Force IPv4
 });
 
-// Verify connection on startup
+
 transporter.verify(function (error, success) {
   if (error) {
     console.error('❌ Email Server Error:', error);
@@ -88,7 +88,7 @@ const sendResetEmail = async (email, token) => {
     console.log('✅ Email sent:', info.messageId);
   } catch (error) {
     console.error('❌ Error sending email:', error);
-    throw error; // Re-throw to be handled by the controller
+    throw error;
   }
 };
 
