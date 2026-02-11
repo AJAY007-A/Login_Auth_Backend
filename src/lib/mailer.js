@@ -1,13 +1,20 @@
 const nodemailer = require('nodemailer');
 
 // Use 'service: gmail' for better reliability with Gmail App Passwords
+// Use explicit SMTP configuration to avoid IPv6 issues
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // true for 465, false for other ports
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS ? process.env.EMAIL_PASS.replace(/\s+/g, '') : undefined,
   },
-  family: 4, // Force IPv4 to avoid ENETUNREACH errors on some networks
+  tls: {
+    ciphers: 'SSLv3'
+  },
+  requireTLS: true,
+  family: 4, // Force IPv4
 });
 
 // Verify connection on startup
