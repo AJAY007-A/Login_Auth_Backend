@@ -6,38 +6,27 @@ const authRoutes = require("./routes/auth");
 
 
 const app = express();
+app.set('trust proxy', 1); // trust first proxy
 const PORT = process.env.PORT || 5000;
 
 const session = require('express-session');
 const passport = require('./lib/passport');
 
 app.use(cors({
-    origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-
-        const allowedOrigins = [
-            process.env.FRONTEND_URL,
-            'http://localhost:3000',
-            'https://login-page-frontend.vercel.app', // Keep original example
-            'https://login-auth-frontend-blond.vercel.app' // Add user's actual Vercel URL
-        ];
-
-        if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.vercel.app')) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: process.env.FRONTEND_URL,
     credentials: true
 }));
 app.use(express.json());
 
 app.use(
     session({
-        secret: process.env.JWT_SECRET,
+        secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: false,
+        cookie: {
+            secure: true, // HTTPS only
+            sameSite: "none", // allow cross-site OAuth
+        }
     })
 );
 
