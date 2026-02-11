@@ -70,7 +70,7 @@ const forgotPassword = async (req, res) => {
         }
 
         const resetToken = crypto.randomBytes(32).toString('hex');
-        const resetExpires = new Date(Date.now() + 3600000); 
+        const resetExpires = new Date(Date.now() + 3600000);
 
         await prisma.user.update({
             where: { email },
@@ -80,7 +80,8 @@ const forgotPassword = async (req, res) => {
             },
         });
 
-        await sendResetEmail(email, resetToken);
+        const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+        await sendResetEmail(email, resetUrl);
 
         res.json({ message: 'Password reset link sent to your email' });
     } catch (error) {
