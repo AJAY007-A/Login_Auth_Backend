@@ -1,13 +1,21 @@
 const nodemailer = require('nodemailer');
 
+// Use 'service: gmail' for better reliability with Gmail App Passwords
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: false,
+  service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    pass: process.env.EMAIL_PASS ? process.env.EMAIL_PASS.replace(/\s+/g, '') : undefined, // Remove spaces from app password
   },
+});
+
+// Verify connection on startup
+transporter.verify(function (error, success) {
+  if (error) {
+    console.error('❌ Email Server Error:', error);
+  } else {
+    console.log('✅ Email Server Response: Ready to send emails');
+  }
 });
 
 const sendResetEmail = async (email, token) => {
@@ -67,7 +75,13 @@ const sendResetEmail = async (email, token) => {
     `,
   };
 
-  await transporter.sendMail(mailOptions);
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('✅ Email sent:', info.messageId);
+  } catch (error) {
+    console.error('❌ Error sending email:', error);
+    throw error; // Re-throw to be handled by the controller
+  }
 };
 
 module.exports = { sendResetEmail };
